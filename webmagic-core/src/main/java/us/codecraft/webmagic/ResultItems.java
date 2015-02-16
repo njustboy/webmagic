@@ -20,6 +20,32 @@ public class ResultItems {
     private Request request;
 
     private boolean skip;
+    
+    private String contentType;
+    
+    public String getContentType() {
+		return contentType;
+	}
+
+
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+
+
+	public byte[] getBytes() {
+		return bytes;
+	}
+    
+    
+
+	public void setBytes(byte[] bytes) {
+		this.bytes = bytes;
+	}
+
+	private byte[] bytes;
 
     public <T> T get(String key) {
         Object o = fields.get(key);

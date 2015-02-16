@@ -52,6 +52,14 @@ public class Page {
         return this;
 
     }
+    
+    public void setBytes(byte[] bytes){
+    	this.resultItems.setBytes(bytes);
+    }
+    
+    public void setContentType(String contentType){
+    	this.resultItems.setContentType(contentType);
+    }
 
     /**
      * store extract results

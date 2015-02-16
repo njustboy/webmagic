@@ -1,8 +1,10 @@
 package us.codecraft.webmagic.downloader;
 
 import com.google.common.collect.Sets;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -20,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -175,18 +178,22 @@ public class HttpClientDownloader extends AbstractDownloader {
     }
 
     protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task) throws IOException {
-        String content = getContent(charset, httpResponse);
+        byte[] bytes = IOUtils.toByteArray(httpResponse.getEntity().getContent());
+    	String content = getContent(charset, httpResponse,bytes);
+        String contentType = httpResponse.getEntity().getContentType().getValue();
         Page page = new Page();
         page.setRawText(content);
         page.setUrl(new PlainText(request.getUrl()));
         page.setRequest(request);
+        page.setBytes(bytes);
+        page.setContentType(contentType);
         page.setStatusCode(httpResponse.getStatusLine().getStatusCode());
         return page;
     }
 
-    protected String getContent(String charset, HttpResponse httpResponse) throws IOException {
+    protected String getContent(String charset, HttpResponse httpResponse,byte[] bytes) throws IOException {
         if (charset == null) {
-            byte[] contentBytes = IOUtils.toByteArray(httpResponse.getEntity().getContent());
+            byte[] contentBytes = bytes;
             String htmlCharset = getHtmlCharset(httpResponse, contentBytes);
             if (htmlCharset != null) {
                 return new String(contentBytes, htmlCharset);
