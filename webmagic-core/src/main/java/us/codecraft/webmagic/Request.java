@@ -1,10 +1,15 @@
 package us.codecraft.webmagic;
 
-import us.codecraft.webmagic.utils.Experimental;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import us.codecraft.webmagic.utils.Experimental;
 
 /**
  * Object contains url to crawl.<br>
@@ -29,8 +34,18 @@ public class Request implements Serializable {
      * Store additional information in extras.
      */
     private Map<String, Object> extras;
+    
+    private List<NameValuePair> nameValuePairList;
 
-    /**
+    public List<NameValuePair> getNamePairList() {
+		return nameValuePairList;
+	}
+
+	public void setNamePairList(List<NameValuePair> nameValuePairList) {
+		this.nameValuePairList = nameValuePairList;
+	}
+
+	/**
      * Priority of the request.<br>
      * The bigger will be processed earlier. <br>
      * @see us.codecraft.webmagic.scheduler.PriorityScheduler
@@ -42,6 +57,16 @@ public class Request implements Serializable {
 
     public Request(String url) {
         this.url = url;
+    }
+    
+    public Request(String userName,String passwd,String url){
+    	if(nameValuePairList==null){
+    		nameValuePairList = new ArrayList<NameValuePair>();
+    	}
+    	nameValuePairList.add(new BasicNameValuePair("email", userName));  
+    	nameValuePairList.add(new BasicNameValuePair("password", passwd)); 
+    	 
+    	this.url = url;
     }
 
     public long getPriority() {
@@ -133,4 +158,5 @@ public class Request implements Serializable {
                 ", priority=" + priority +
                 '}';
     }
+
 }

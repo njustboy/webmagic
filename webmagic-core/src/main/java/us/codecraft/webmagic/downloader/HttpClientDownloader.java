@@ -1,10 +1,14 @@
 package us.codecraft.webmagic.downloader;
 
-import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -15,6 +19,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,11 +36,7 @@ import us.codecraft.webmagic.selector.PlainText;
 import us.codecraft.webmagic.utils.HttpConstant;
 import us.codecraft.webmagic.utils.UrlUtils;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Sets;
 
 
 /**
@@ -64,6 +65,7 @@ public class HttpClientDownloader extends AbstractDownloader {
                 httpClient = httpClients.get(domain);
                 if (httpClient == null) {
                     httpClient = httpClientGenerator.getClient(site);
+                    
                     httpClients.put(domain, httpClient);
                 }
             }
@@ -157,12 +159,26 @@ public class HttpClientDownloader extends AbstractDownloader {
         String method = request.getMethod();
         if (method == null || method.equalsIgnoreCase(HttpConstant.Method.GET)) {
             //default get
-            return RequestBuilder.get();
+        	 RequestBuilder requestBuilder = RequestBuilder.get();
+             NameValuePair[] nameValuePair = (BasicNameValuePair[]) request.getExtra("nameValuePair");
+             List<NameValuePair> namePairList = request.getNamePairList();
+             if (nameValuePair != null && nameValuePair.length > 0) {
+                 requestBuilder.addParameters(nameValuePair);
+             }
+             if(namePairList!=null&&namePairList.size()>0){
+            	 NameValuePair[] nvps = new NameValuePair[namePairList.size()];
+            	 requestBuilder.addParameters(namePairList.toArray(nvps));
+             }
+             return requestBuilder;
         } else if (method.equalsIgnoreCase(HttpConstant.Method.POST)) {
             RequestBuilder requestBuilder = RequestBuilder.post();
             NameValuePair[] nameValuePair = (NameValuePair[]) request.getExtra("nameValuePair");
+            List<NameValuePair> namePairList = request.getNamePairList();
             if (nameValuePair != null && nameValuePair.length > 0) {
                 requestBuilder.addParameters(nameValuePair);
+            }
+            if(namePairList!=null&&namePairList.size()>0){
+           	 requestBuilder.addParameters((NameValuePair[])namePairList.toArray());
             }
             return requestBuilder;
         } else if (method.equalsIgnoreCase(HttpConstant.Method.HEAD)) {

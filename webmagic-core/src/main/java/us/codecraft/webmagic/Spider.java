@@ -477,6 +477,14 @@ public class Spider implements Runnable, Task {
         signalNewUrl();
         return this;
     }
+    
+    public Spider addUrl(String userName,String passwd,String... urls) {
+        for (String url : urls) {
+            addRequest(new Request(userName,passwd,url));
+        }
+        signalNewUrl();
+        return this;
+    }
 
     /**
      * Download urls synchronizing.
