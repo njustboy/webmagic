@@ -234,7 +234,7 @@ public class RenrenImgCrawler {
 		html = html.replaceAll("\\\\", "");
 		
 		List<String> imglistUrl = new ArrayList<String>();
-		Pattern p = Pattern.compile("http:((?!http).)*jpg");
+		Pattern p = Pattern.compile("http:((?!http).)*large.*jpg");
 		Matcher m = p.matcher(html);
 		while (m.find()) {
 			String url = m.group();
