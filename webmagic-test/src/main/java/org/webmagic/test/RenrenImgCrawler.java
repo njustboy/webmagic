@@ -1,11 +1,16 @@
 package org.webmagic.test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,19 +32,43 @@ public class RenrenImgCrawler {
 	private HttpGet httpget;
 
 	private HttpResponse re2;
+	
+	private String userName;
+	
+	private String userPasswd;
+	
+	private String rootDir;
+	
+	private List<String> userList;
 
 	public static void main(String[] args) {
 		RenrenImgCrawler crawler = new RenrenImgCrawler();
 		
-		boolean loginSuccess = crawler.login("15601589581", "520520");
+		crawler.init();
+		
+		boolean loginSuccess = crawler.login();
 		if(!loginSuccess){
 			return;
 		}
 		
-		crawler.crawlerImg("303878665");
+		crawler.crawlerImg();
 
 	}
-
+	
+	public void crawlerImg(){
+		if(userList.size()>0){
+			for(String id:userList){
+				crawlerImg(id);
+			}
+		}else{
+			int id = 60938124;
+			for(int i=0;i<1000000000;i++){
+				id += 1;
+				crawlerImg(String.valueOf(id));
+			}
+		}
+	}
+	
 	public void crawlerImg(String id) {
 		String entryUrl = createMainUrl(id);
 		String mainHtml = getHtmlSource(entryUrl);
@@ -54,7 +83,7 @@ public class RenrenImgCrawler {
 			String albumHtml = getHtmlSource(albumUrl);
 			List<String> imgList = parserImglistUrl(albumHtml);
 			String albumName = parserAlbumName(albumHtml);
-			String dir = "c:/人人相册"+File.separator+ userName + File.separator+ albumName;
+			String dir = rootDir+File.separator+ userName + File.separator+ albumName;
 			File dirFile = new File(dir);
 			if(!dirFile.exists()){
 				dirFile.mkdirs();
@@ -74,12 +103,12 @@ public class RenrenImgCrawler {
 		}
 	}
 
-	private boolean login(String userName, String passwd) {
+	private boolean login() {
 		httpclient = HttpClients.createDefault();
 		HttpPost httppost = new HttpPost("http://www.renren.com/PLogin.do");
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("email", userName));
-		params.add(new BasicNameValuePair("password", passwd));
+		params.add(new BasicNameValuePair("password", userPasswd));
 		try {
 			httppost.setEntity(new UrlEncodedFormEntity(params));
 			// 提交登录数据
@@ -244,6 +273,65 @@ public class RenrenImgCrawler {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void init(){
+		Properties properties = new Properties();
+		InputStream in = null;
+		try{
+			in = new FileInputStream(new File("config/renren.properties"));
+			properties.load(in);
+			userName = properties.getProperty("userName");
+			userPasswd = properties.getProperty("userPasswd");
+			rootDir = properties.getProperty("rootDir");
+			
+			System.out.println("用户名："+userName);
+			System.out.println("密码："+userPasswd);
+			System.out.println("图片根目录："+rootDir);
+		}catch(Exception e){
+			userName = "15601589581";
+			userPasswd = "520520";
+			rootDir = "c:/人人相册";
+		}finally{
+			if(in!=null){
+				try{
+					in.close();
+				}catch(Exception e){
+					
+				}
+			}
+		}
+		
+		userList = new LinkedList<String>();
+		BufferedReader br = null;
+		FileReader fr = null;
+		try{
+			fr = new FileReader(new File("config/userList"));
+			br = new BufferedReader(fr);
+			String line = br.readLine();
+			while(line!=null){
+				userList.add(line);
+				line = br.readLine();
+			}
+			System.out.println("共需爬取"+userList.size()+"个用户的相册");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			if(br!=null){
+				try{
+					br.close();
+				}catch(Exception e){
+					
+				}
+			}
+			if(fr!=null){
+				try{
+					fr.close();
+				}catch(Exception e){
+					
+				}
 			}
 		}
 	}
