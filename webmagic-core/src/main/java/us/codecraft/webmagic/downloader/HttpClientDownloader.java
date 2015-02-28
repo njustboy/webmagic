@@ -2,20 +2,25 @@ package us.codecraft.webmagic.downloader;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -53,6 +58,8 @@ public class HttpClientDownloader extends AbstractDownloader {
     private final Map<String, CloseableHttpClient> httpClients = new HashMap<String, CloseableHttpClient>();
 
     private HttpClientGenerator httpClientGenerator = new HttpClientGenerator();
+    
+    private final Set<String> loginSet = new HashSet<String>();
 
     private CloseableHttpClient getHttpClient(Site site) {
         if (site == null) {
@@ -93,8 +100,39 @@ public class HttpClientDownloader extends AbstractDownloader {
         CloseableHttpResponse httpResponse = null;
         int statusCode=0;
         try {
+        	String loginUrl = site.getLoginUrl();
+        	if(loginUrl!=null&&!loginSet.contains(loginUrl)){
+        		String nameLabel = site.getNameLabel();
+                String name = site.getName();
+                String passwdLabel = site.getPasswdLabel();
+                String passwd = site.getPasswd();
+                if(nameLabel!=null&&name!=null&&passwdLabel!=null&&passwd!=null){
+                	List<NameValuePair> params = new ArrayList<NameValuePair>();
+            		params.add(new BasicNameValuePair(nameLabel, name));
+            		params.add(new BasicNameValuePair(passwdLabel, passwd));
+            		try{
+            			HttpPost httppost = new HttpPost(loginUrl);
+            			httppost.setEntity(new UrlEncodedFormEntity(params));
+            			// 提交登录数据
+            			HttpResponse re = getHttpClient(site).execute(httppost);
+            			// 获得跳转的网址
+            			Header locationHeader = re.getFirstHeader("Location");
+            			if(locationHeader==null){
+            				logger.warn("登录失败");
+            			}else{
+            				logger.info("登录成功");
+            				loginSet.add(loginUrl);
+            			}
+            		}catch(Exception e){
+            			logger.error("登录出错");
+            		}
+                }
+        	}
+        	
             HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers);
+            
             httpResponse = getHttpClient(site).execute(httpUriRequest);
+            
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
             if (statusAccept(acceptStatCode, statusCode)) {
@@ -141,6 +179,21 @@ public class HttpClientDownloader extends AbstractDownloader {
                 requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
             }
         }
+        
+//        String nameLabel = site.getNameLabel();
+//        String name = site.getName();
+//        String passwdLabel = site.getPasswdLabel();
+//        String passwd = site.getPasswd();
+//        if(nameLabel!=null&&name!=null&&passwdLabel!=null&&passwd!=null){
+//        	List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    		params.add(new BasicNameValuePair(nameLabel, name));
+//    		params.add(new BasicNameValuePair(passwdLabel, passwd));
+//    		try{
+//    		requestBuilder.setEntity(new UrlEncodedFormEntity(params));
+//    		}catch(Exception e){
+//    			logger.error("set user/passwd failed!");
+//    		}
+//        }
         RequestConfig.Builder requestConfigBuilder = RequestConfig.custom()
                 .setConnectionRequestTimeout(site.getTimeOut())
                 .setSocketTimeout(site.getTimeOut())

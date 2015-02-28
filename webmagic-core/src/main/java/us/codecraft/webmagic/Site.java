@@ -54,8 +54,63 @@ public class Site {
     private ProxyPool httpProxyPool;
 
     private boolean useGzip = true;
+    
+    private String nameLabel;
+    
+    private String name;
+    
+    private String passwdLabel;
+    
+    private String passwd;
+    
+    private String loginUrl;
 
-    /**
+    public String getLoginUrl() {
+		return loginUrl;
+	}
+
+	public Site setLoginUrl(String loginUrl) {
+		this.loginUrl = loginUrl;
+		return this;
+	}
+
+	public String getNameLabel() {
+		return nameLabel;
+	}
+
+	public Site setNameLabel(String nameLabel) {
+		this.nameLabel = nameLabel;
+		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Site setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public String getPasswdLabel() {
+		return passwdLabel;
+	}
+
+	public Site setPasswdLabel(String passwdLabel) {
+		this.passwdLabel = passwdLabel;
+		return this;
+	}
+
+	public String getPasswd() {
+		return passwd;
+	}
+
+	public Site setPasswd(String passwd) {
+		this.passwd = passwd;
+		return this;
+	}
+
+	/**
      * @see us.codecraft.webmagic.utils.HttpConstant.Header
      * @deprecated
      */

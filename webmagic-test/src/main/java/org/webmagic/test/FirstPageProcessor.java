@@ -13,7 +13,6 @@ public class FirstPageProcessor implements PageProcessor {
 	private Site site = Site.me().setRetryTimes(3).setSleepTime(0);
 	@Override
 	public void process(Page page) {
-		// TODO Auto-generated method stub
 		List<String> all = page.getHtml().links().regex(".*\\.jpg").all();
 		page.addTargetRequests(all);
 		

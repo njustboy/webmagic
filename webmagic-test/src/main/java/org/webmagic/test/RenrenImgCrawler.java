@@ -39,6 +39,8 @@ public class RenrenImgCrawler {
 	
 	private String rootDir;
 	
+	private String cookie;
+	
 	private List<String> userList;
 
 	public static void main(String[] args) {
@@ -115,6 +117,8 @@ public class RenrenImgCrawler {
 			HttpResponse re = httpclient.execute(httppost);
 			// 获得跳转的网址
 			Header locationHeader = re.getFirstHeader("Location");
+			//获取cookie
+			cookie = re.getFirstHeader("Set-Cookie").getValue();
 			// 登陆不成功
 			if (locationHeader == null) {
 				System.out.println("登陆不成功，请稍后再试!");
@@ -136,6 +140,7 @@ public class RenrenImgCrawler {
 	private String getHtmlSource(String url) {
 		String html = "";
 		httpget = new HttpGet(url);
+		httpget.setHeader("Cookie", cookie);
 		re2 = null;
 
 		try {
@@ -234,7 +239,7 @@ public class RenrenImgCrawler {
 		html = html.replaceAll("\\\\", "");
 		
 		List<String> imglistUrl = new ArrayList<String>();
-		Pattern p = Pattern.compile("http:((?!http).)*large.*jpg");
+		Pattern p = Pattern.compile("http:((?!http)(?!jpg).)*large.*jpg");
 		Matcher m = p.matcher(html);
 		while (m.find()) {
 			String url = m.group();
@@ -245,6 +250,7 @@ public class RenrenImgCrawler {
 
 	private void saveImg(String imgUrl, String filePath) {
 		httpget = new HttpGet(imgUrl);
+		httpget.setHeader("Cookie", cookie);
 		re2 = null;
 		FileOutputStream fos = null;
 		InputStream input = null;

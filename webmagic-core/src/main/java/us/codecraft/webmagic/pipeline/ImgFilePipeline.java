@@ -32,11 +32,11 @@ public class ImgFilePipeline extends FilePersistentBase implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         String path = this.path + PATH_SEPERATOR + task.getUUID() + PATH_SEPERATOR;
         try {
-        	byte[] bytes = resultItems.getBytes();
-        	String tail = ".html";
-        	if(resultItems.getContentType().contains("image")){
-        		tail = ".jpg";
+        	if(!resultItems.getContentType().contains("image")){
+        		return;
         	}
+        	byte[] bytes = resultItems.getBytes();
+        	String tail = ".jpg";
         	FileOutputStream fos = new FileOutputStream(getFile(path + DigestUtils.md5Hex(resultItems.getRequest().getUrl()) + tail));
         	fos.write(bytes);
         	fos.close();
