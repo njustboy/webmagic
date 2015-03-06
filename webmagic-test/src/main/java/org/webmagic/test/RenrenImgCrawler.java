@@ -80,11 +80,16 @@ public class RenrenImgCrawler {
 			return;
 		}
 		System.out.println("开始抓取："+userName);
+		//相册列表
 		List<String> albumList = parserAlbumlistUrl(mainHtml);
 		for (String albumUrl : albumList) {
+			//相册对应的HTML页面
 			String albumHtml = getHtmlSource(albumUrl);
+			//从相册页面中提取出图片链接
 			List<String> imgList = parserImglistUrl(albumHtml);
+			//相册名称
 			String albumName = parserAlbumName(albumHtml);
+			//图片文件夹：根目录/用户名/相册名
 			String dir = rootDir+File.separator+ userName + File.separator+ albumName;
 			File dirFile = new File(dir);
 			if(!dirFile.exists()){
@@ -140,7 +145,7 @@ public class RenrenImgCrawler {
 	private String getHtmlSource(String url) {
 		String html = "";
 		httpget = new HttpGet(url);
-		httpget.setHeader("Cookie", cookie);
+//		httpget.setHeader("Cookie", cookie);
 		re2 = null;
 
 		try {

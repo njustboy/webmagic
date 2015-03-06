@@ -36,6 +36,9 @@ public class RenrenImageProcessor implements PageProcessor {
 	}
 
 	public static void main(String[] args) {
+		String[] urls = new String[2];
+		urls[1] = "aaa";
+		urls[2] = "bbb";
 		Spider.create(new RenrenImageProcessor())
 				.addUrl("http://photo.renren.com/photo/222652243/album-920687585?frommyphoto")
 				.addPipeline(new ImgFilePipeline("C:/webmagic"))
