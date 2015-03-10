@@ -90,7 +90,7 @@ public class RenrenImgParser {
 			}
 			logger.info("共需爬取"+userList.size()+"个用户的相册");
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}finally{
 			if(br!=null){
 				try{

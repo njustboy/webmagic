@@ -102,9 +102,9 @@ public class AlbumPageParser implements Runnable {
 
 			html = EntityUtils.toString(re.getEntity());
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			httpget.abort();
 		}
