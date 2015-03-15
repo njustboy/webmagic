@@ -73,7 +73,7 @@ public class ImageDownloader implements Runnable {
 	}
 
 	private void saveImg(String imgUrl, String filePath) {
-		logger.info("开始下载图片："+imgUrl);
+//		logger.info(Thread.currentThread().getName()+"开始下载图片："+imgUrl);
 		httpget = new HttpGet(imgUrl);
 		FileOutputStream fos = null;
 		InputStream input = null;

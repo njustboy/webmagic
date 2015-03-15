@@ -20,6 +20,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+/**
+ * 将人人网用户ID添加至userList文件中，爬虫自动爬取用户相册
+ * bug:无法处理相册分页的问题，目前只能爬取每个相册中第一页的图片
+ * 
+ * @author njustboy
+ *
+ */
 public class RenrenImgParser {
 	private Logger logger = LogManager.getLogger(RenrenImgParser.class.getName());
 	ConfigData configData = ConfigData.getInstance();
@@ -38,7 +45,7 @@ public class RenrenImgParser {
 	private void parse(){
 		ExecutorService pool1 = Executors.newFixedThreadPool(5);
 		ExecutorService pool2 = Executors.newFixedThreadPool(5);
-		ExecutorService pool3 = Executors.newFixedThreadPool(5);
+		ExecutorService pool3 = Executors.newFixedThreadPool(10);
 		
 		for(String id:userList){
 			pool1.submit(new MainPageParser(id,httpclient));

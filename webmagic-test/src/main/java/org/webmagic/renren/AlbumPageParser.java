@@ -64,6 +64,9 @@ public class AlbumPageParser implements Runnable {
 		}
 	}
 	
+	/**
+	 * 只能获取当前页的链接，对于下一页如何处理？
+	 */
 	public void parseAlbumPage(){
 		String str = jedis.lpop("albumUrl");
 		if(str==null){
@@ -90,6 +93,63 @@ public class AlbumPageParser implements Runnable {
 			String url = fileName+"###"+imgUrl;
 			jedis.rpush("imgUrl", url);
 		}
+		
+//		String nextPageUrl = albumUrl+"#page2";
+//		String nextPageAlbumHtml = getHtmlSource(nextPageUrl);
+//		//从相册页面中提取出图片链接
+//		List<String> nextPageImgList = parserImglistUrl(nextPageAlbumHtml);
+//		if(nextPageImgList.size()==0){
+//			return;
+//		}
+//		boolean haveNextPage = true;
+//		for(String url1:imgList){
+//			for(String url2:nextPageImgList){
+//				if(url1.equals(url2)){
+//					haveNextPage = false;
+//				}
+//				break;
+//			}
+//			if(haveNextPage = false){
+//				break;
+//			}
+//		}
+//		while(haveNextPage){
+//			logger.info("成功提取"+nextPageUrl+"中的链接");
+//			for (String imgUrl : nextPageImgList) {
+//				String fileName = dir + File.separator
+//						+ imgUrl.substring(imgUrl.lastIndexOf("/") + 1,imgUrl.length());
+//				String url = fileName+"###"+imgUrl;
+//				jedis.rpush("imgUrl", url);
+//			}
+//			
+//			String[] split = nextPageUrl.split("#page");
+//			int nextPageIndex = 100;
+//			try{
+//				nextPageIndex = Integer.parseInt(split[1])+1;
+//			}catch(Exception e){
+//				logger.error(e.getMessage());
+//			}
+//			nextPageUrl = split[0]+"#page"+nextPageIndex;
+//			nextPageAlbumHtml = getHtmlSource(nextPageUrl);
+//			//从相册页面中提取出图片链接
+//			nextPageImgList = parserImglistUrl(nextPageAlbumHtml);
+//			if(nextPageImgList.size()==0){
+//				break;
+//			}
+//			haveNextPage = true;
+//			for(String url1:imgList){
+//				for(String url2:nextPageImgList){
+//					if(url1.equals(url2)){
+//						haveNextPage = false;
+//					}
+//					break;
+//				}
+//				if(haveNextPage = false){
+//					break;
+//				}
+//			}
+//		}
+		
 	}
 	
 	private String getHtmlSource(String url) {
@@ -119,7 +179,9 @@ public class AlbumPageParser implements Runnable {
 		Matcher m = p.matcher(html);
 		while (m.find()) {
 			String url = m.group();
+			if(!imglistUrl.contains(url)){
 			imglistUrl.add(url);
+			}
 		}
 		return imglistUrl;
 	}
